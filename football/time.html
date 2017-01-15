@@ -14,6 +14,8 @@
 <script>
 	var BoidClock = (function() {
 	'use strict';
+
+    //扩散计算位置
 	  function Point(pos, targetPos) {
 	    this.pos = pos; 
 	    this.targetPos = targetPos;
@@ -31,7 +33,7 @@
 	    this.pos.x += this.vels.vx;
 	    this.pos.y += this.vels.vy;
 	  };
-	
+	//球
 	  function Boid(points) {
 	    this.points = points;
 	    this.radius = 2.5 + Math.random();
@@ -60,7 +62,7 @@
 	
 	    ctx.restore();
 	  };
-	
+	   //画布初始
 	  var canvas = document.createElement('canvas'),
 	      ctx = canvas.getContext('2d'),
 	
@@ -118,7 +120,7 @@
 	    return hours + ':' + minutes + ':' + seconds;
 	
 	  }
-	
+	//粒子排列
 	  function updatePixelPosition(time) {
 	    pixelPositions = [];
 	    tempCtx.clearRect(0, 0, width, height);
@@ -154,7 +156,7 @@
 	    ctx.fillRect(0, 0, width, height);
 	    boids.forEach(renderBoid);
 	  }
-	
+	   //绘制
 	  function renderBoid(boid, i) {
 	    var pixelPosition = pixelPositions[i];
 	    var len = boid.points.length - 1;
