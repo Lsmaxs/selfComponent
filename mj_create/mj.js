@@ -3,7 +3,7 @@
 * @Author: Marte
 * @Date:   2016-10-16 15:44:34
 * @Last Modified by:   Marte
-* @Last Modified time: 2017-02-12 11:06:49
+* @Last Modified time: 2017-02-12 20:14:41
 */
      // 将一些全局对象，传到框架中的局部变量中。
      // 好处：提高访问性能。
@@ -51,7 +51,47 @@
     // 扩展类型判断方法
     // 所有方法的返回值应为布尔值
     JQ.extend({
-        
+        each:function(func){
+            var i = 0,
+                length = this.length;
+            for(var i = 0;i<length;i++){
+                func.call(this[i],this[i],i);
+            }
+            return this;
+        },
+        append:function(child){
+            if(JQ.isString(child)){
+                child = JQ(child)[0];
+            }
+            this.each(function(v,k){
+                v.appendChild(child);
+            })
+            child = null;
+            return this;
+        },
+        css:function(cssRules,value){
+            var transformHump = function(name){
+                return name.replace(/\-(\w)/g,function(all,letter){
+                    return letter.toUpperCase();
+                })
+            };
+            if(JQ.isString(cssRules)){
+                if(JQ.isUndefined(value)){
+                    return document.defaultView.getComputedStyle(this[0],null).getPropertyValue(value);
+                }else{
+                    this.each(function(v,k){
+                        v.style[transformHump(cssRules)]=value;
+                    })
+                }
+            }else{
+                for(var i in cssRules){
+                    this.each(function(v,k){
+                        v.style[transformHump(i)] = cssRules[i]
+                    })
+                }
+            }
+            return this;
+        }
     });
 
     window.$ = window.JQ = JQ;
