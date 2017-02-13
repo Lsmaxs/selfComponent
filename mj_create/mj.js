@@ -3,7 +3,7 @@
 * @Author: Marte
 * @Date:   2016-10-16 15:44:34
 * @Last Modified by:   Marte
-* @Last Modified time: 2017-02-12 20:14:41
+* @Last Modified time: 2017-02-13 21:10:59
 */
      // 将一些全局对象，传到框架中的局部变量中。
      // 好处：提高访问性能。
@@ -51,6 +51,35 @@
     // 扩展类型判断方法
     // 所有方法的返回值应为布尔值
     JQ.extend({
+        isNull:function(obj){
+            return !obj;
+        },
+        isString:function(str){
+            return typeof str === 'string';
+        },
+        isFunction:function(fun){
+            return typeof fun === 'function'
+        },
+        ismyJQ:function(select){
+            return  select === 'object' && "selector" in JQ
+        },
+        isDOM:function(dom){
+            return !!(dom.nodeType);
+        },
+        isWindow:function(win){
+            return typeof win === "object" && "window" in win && win.window === window; 
+        },
+        isArrayLike:function(arr){
+            if(JQ.isWindow(arr)||JQ.isFunction(arr)) false;
+            return typeof arr === 'object' && arr.length > 0 &&"length"in arr
+        },
+        isHtml:function(html){
+            var h = JQ.trim(html);
+            return  h.charAt(0) === "<" && h.charAt(h.length-1) === ">" && h.length> 3;
+        }
+    })
+
+    JQ.extend({
         each:function(func){
             var i = 0,
                 length = this.length;
@@ -58,6 +87,10 @@
                 func.call(this[i],this[i],i);
             }
             return this;
+        },
+        trim:function(str){
+            if(!str) return "";
+            return str.replace(/^\s+|\s+$/g,'');
         },
         append:function(child){
             if(JQ.isString(child)){
