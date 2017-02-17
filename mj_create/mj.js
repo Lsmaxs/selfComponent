@@ -125,7 +125,58 @@
             }
             return this;
         }
-    });
+    })
+
+    JQ.extend({
+        firstChild:function (dom) {
+            var nodeDom;
+            JQ.each(dom.childNodes,function(i,e){
+               if( this.nodeType ===1 ){
+                   nodeDom = this;
+                   return false;
+               }
+
+            })
+            return nodeDom;
+        },
+        nextSibling:function (dom) {
+            var newDom = dom;
+            while (newDom = newDom.nextSibling){
+                if( newDom.nodeType ===1){
+                    return newDom;
+                }
+            }
+        },
+        nextAll:function (dom) {
+            var newDom = dom ,arr = [];
+            while (newDom = newDom.nextSibling){
+                if(newDom.nodeType===1){
+                    arr.push(newDom)
+                }
+            }
+            return arr;
+        }
+    })
+
+    // 事件模块
+    JQ.fn.extend({
+        on:function(type,callback){
+            this.each(function(){
+                if(this.addEventListener){
+                    this.addEventListener(type,callback);
+                } else{
+                    this.attachEvent('on'+type,callback);
+                }
+            })
+            return this;
+        },
+        off:function(type,callback){
+            this.each(function(){
+                this.removeEventListener(type,callback);
+            });
+            return this;
+        }
+    })
 
     window.$ = window.JQ = JQ;
 })(window);
