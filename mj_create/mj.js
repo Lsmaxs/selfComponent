@@ -1,12 +1,21 @@
-!(function(window){
-/* 
-* @Author: Marte
-* @Date:   2016-10-16 15:44:34
-* @Last Modified by:   Marte
-* @Last Modified time: 2017-02-13 21:10:59
-*/
-     // 将一些全局对象，传到框架中的局部变量中。
-     // 好处：提高访问性能。
+;(function(window,factory) {
+
+   if(typeof define === 'function'&&define.amd){
+       define.factory(window);
+   }else if(typeof exports === 'object'){
+        module.exports = factory(window);
+    }else {
+       window.$ = window.JQ = factory(window);
+   }
+})(window,function (window) {
+    /*
+     * @Author: Lsmax
+     * @Date:   2016-10-16 15:44:34
+     * @Last Modified by:   Lsmax
+     * @Last Modified time: 2017-02-13 21:10:59
+     */
+    // 将一些全局对象，传到框架中的局部变量中。
+    // 好处：提高访问性能。
     var isArray = [],
         push = isArray.push,
         document = window.document;
@@ -17,7 +26,7 @@
     }
     //简写方式
     JQ.fn = JQ.prototype;
-    JQ.prototype,init = function(select,context){
+    JQ.prototype.init = function(select,context){
         if(select.nodeType===1){
             this[0]=select;
             this.length=1;
@@ -76,14 +85,23 @@
         isHtml:function(html){
             var h = JQ.trim(html);
             return  h.charAt(0) === "<" && h.charAt(h.length-1) === ">" && h.length> 3;
+        },
+        isUndefined:function (obj) {
+            return obj === undefined ;
+        },
+        isEmptyObject:function (obj) {
+            var key;
+            for(key in obj) return false;
+            return true;
         }
     })
 
+    // 扩展工具方法
     JQ.extend({
         each:function(func){
-            var i = 0,
-                length = this.length;
+            var length = this.length;
             for(var i = 0;i<length;i++){
+                //将each的回调环境指向到具体的节点内，this即节点
                 func.call(this[i],this[i],i);
             }
             return this;
@@ -91,39 +109,6 @@
         trim:function(str){
             if(!str) return "";
             return str.replace(/^\s+|\s+$/g,'');
-        },
-        append:function(child){
-            if(JQ.isString(child)){
-                child = JQ(child)[0];
-            }
-            this.each(function(v,k){
-                v.appendChild(child);
-            })
-            child = null;
-            return this;
-        },
-        css:function(cssRules,value){
-            var transformHump = function(name){
-                return name.replace(/\-(\w)/g,function(all,letter){
-                    return letter.toUpperCase();
-                })
-            };
-            if(JQ.isString(cssRules)){
-                if(JQ.isUndefined(value)){
-                    return document.defaultView.getComputedStyle(this[0],null).getPropertyValue(value);
-                }else{
-                    this.each(function(v,k){
-                        v.style[transformHump(cssRules)]=value;
-                    })
-                }
-            }else{
-                for(var i in cssRules){
-                    this.each(function(v,k){
-                        v.style[transformHump(i)] = cssRules[i]
-                    })
-                }
-            }
-            return this;
         }
     })
 
@@ -176,7 +161,53 @@
             });
             return this;
         }
+
+    })
+    //dom 操作模块
+    JQ.fn.extend({
+
+    })
+    // css 操作模块
+    JQ.fn.extend({
+        css:function(cssRules,value){
+            var transformHump = function(name){
+                return name.replace(/\-(\w)/g,function(all,letter){
+                    return letter.toUpperCase();
+                })
+            };
+            if(JQ.isString(cssRules)){
+                if(JQ.isUndefined(value)){
+                    return document.defaultView.getComputedStyle(this[0],null).getPropertyValue(value);
+                }else{
+                    this.each(function(v,k){
+                        v.style[transformHump(cssRules)]=value;
+                    })
+                }
+            }else{
+                for(var i in cssRules){
+                    this.each(function(v,k){
+                        v.style[transformHump(i)] = cssRules[i]
+                    })
+                }
+            }
+            return this;
+        },
+        append:function(child){
+            if(JQ.isString(child)){
+                child = JQ(child)[0];
+            }
+            this.each(function(v,k){
+                v.appendChild(child);
+            })
+            child = null;
+            return this;
+        }
     })
 
-    window.$ = window.JQ = JQ;
-})(window);
+    // 其他事件模块
+    JQ.fn.extend({
+
+    })
+
+    return window.$ = window.JQ = JQ;
+})
