@@ -1,13 +1,13 @@
-;(function(window,factory) {
-
+;(function(global,factory) {
+    "use strict";
    if(typeof define === 'function'&&define.amd){
-       define.factory(window);
+       define.factory(global);
    }else if(typeof exports === 'object'){
-        module.exports = factory(window);
+        module.exports = factory(global);
     }else {
-       window.$ = window.JQ = factory(window);
+       global.$ = global.JQ = factory(global);
    }
-})(window,function (window) {
+})( typeof window !== "undefined" ? window:this ,function (window) {
     /*
      * @Author: Lsmax
      * @Date:   2016-10-16 15:44:34
@@ -79,7 +79,7 @@
             return typeof win === "object" && "window" in win && win.window === window; 
         },
         isArrayLike:function(arr){
-            if(JQ.isWindow(arr)||JQ.isFunction(arr)) false;
+            if(JQ.isWindow(arr)||JQ.isFunction(arr)) return false;
             return typeof arr === 'object' && arr.length > 0 &&"length"in arr
         },
         isHtml:function(html){
@@ -88,6 +88,9 @@
         },
         isUndefined:function (obj) {
             return obj === undefined ;
+        },
+        isEmpty:function(obj){
+            return obj == null || obj == undefined || obj + '' + "";
         },
         isEmptyObject:function (obj) {
             var key;
@@ -111,7 +114,7 @@
             return str.replace(/^\s+|\s+$/g,'');
         }
     })
-
+    //dom 操作模块
     JQ.extend({
         firstChild:function (dom) {
             var nodeDom;
@@ -140,6 +143,25 @@
                 }
             }
             return arr;
+        },
+        append:function(child){
+            if(JQ.isString(child)){
+                child = JQ(child)[0];
+            }
+            this.each(function(v,k){
+                v.appendChild(child);
+            })
+            child = null;
+            return this;
+        },
+        remove:function () {
+            return JQ.each(this,function(){
+                if(this.parentNode !== null){
+                    //取绑事件，释放内存
+                    JQ(this).off();
+                    this.parentNode.removeChild(this);
+                }
+            })
         }
     })
 
@@ -163,9 +185,25 @@
         }
 
     })
-    //dom 操作模块
+    //属性操作模块
     JQ.fn.extend({
-
+        width:function(dom){
+            if(dom[0]== window){
+                return document.documentElement.clientWidth;
+            }else{
+                return dom.getComputedStyle(this[0],null).width;
+            }
+        },
+        height:function(dom){
+            if(dom[0]==window){
+                return document.documentElement.clientHeight;
+            }else{
+                return dom.getComputedStyle(this[0].null).height;
+            }
+        },
+        find:function(selector){
+            return JQ(this[0].querySelector(selector));
+        }
     })
     // css 操作模块
     JQ.fn.extend({
@@ -192,21 +230,38 @@
             }
             return this;
         },
-        append:function(child){
-            if(JQ.isString(child)){
-                child = JQ(child)[0];
-            }
-            this.each(function(v,k){
-                v.appendChild(child);
+        hasClass:function(cName){
+            this.each(this[0].className.split(''),function(v,k){
+                if(k===cName){
+                    return true
+                }
             })
-            child = null;
-            return this;
+            return false;
+        },
+        addClass:function(cName){
+           return this.each(function () {
+                var className = this.className;
+                className += ''+cName;
+                this.className = JQ.trim(className);
+            })
+        },
+        removeClass:function(cName){
+            return this.each(function () {
+                this.className = JQ.trim(''+this.className+"").replace(""+cName+"",'');
+            })
+
         }
     })
 
     // 其他事件模块
     JQ.fn.extend({
-
+        ready:function(callback){
+            /complete|loaded|interactive/.test(document.readyState)&&document.body? callback(JQ):
+                document.addEventListener("DOMContentLoaded",function(){
+                   callback(JQ);
+                },false);
+            return this;
+        }
     })
 
     return window.$ = window.JQ = JQ;
