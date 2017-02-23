@@ -18,7 +18,8 @@
     // 好处：提高访问性能。
     var isArray = [],
         push = isArray.push,
-        document = window.document;
+        document = window.document,
+        arrFn = Array.prototype;
 
     // 核心函数
     function JQ(select,context){
@@ -116,6 +117,13 @@
     })
     //dom 操作模块
     JQ.extend({
+        creatDom:function(str){
+            var container = document.createElement('div');
+            container.innerHTML = str;
+            var node = container.childNodes;
+            container = null;
+            return node;
+        },
         firstChild:function (dom) {
             var nodeDom;
             JQ.each(dom.childNodes,function(i,e){
@@ -123,7 +131,6 @@
                    nodeDom = this;
                    return false;
                }
-
             })
             return nodeDom;
         },
@@ -162,6 +169,43 @@
                     this.parentNode.removeChild(this);
                 }
             })
+        },
+        before:function(node){
+            this.addDom(node,function(newNode){
+                this.parentNode.insertBefore(newNode,this);
+            })
+            return this;
+        },
+        after:function(node){
+            this.addDom(node,function(newNode){
+                var next = this.nextElementSibling;
+                next ? this.parentNode.insertBefore(newNode,next):this.parentNode.appendChild(newNode);
+            })
+            return this
+        },
+        prev:function(){
+            if(!JQ.isEmptyObject(this[0])){
+                var previous = this[0].previousElementSibling;
+                previous ? arrFn.slice.call(this,0,this.length,previous):arrFn.splice.call(this,0,this.length);
+            }
+            return this;
+        },
+        next:function(){
+            if(!JQ.isEmptyObject(this[0])){
+                var next = this[0].nextElementSibling;
+                next ? arrFn.slice.call(this,0,this.length,next):arrFn.slice.call(this,0,this.length);
+            }
+            return this;
+        },
+        slice:function(){
+            return JQ(arrFn.slice.apply(this,arguments))
+        }
+    })
+
+    JQ.each(('click,mouseover,mouseout,mouseenter,mouseleave,mousemove,mousedown,keydown,keyup'+
+    'touchstart,touchmove,touchend').split(','),function(v,k){
+        JQ.fn[v] = function(callback){
+            return this.on(v,callback);
         }
     })
 
@@ -182,6 +226,33 @@
                 this.removeEventListener(type,callback);
             });
             return this;
+        },
+        getInnerText:function(dom){
+            var list = [];
+            if(dom.innerText !== 'undefined'){
+                return dom.innerText;
+            }else{
+                return getNodeText(dom,list).join('');
+            }
+            function getNodeText(dom,arr) {
+                var length = dom.childNodes.length,node;
+                for(var i = 0;i<length;i++){
+                    node = dom.childNodes[i];
+                    if(node.nodeType ===3 ){
+                        arr.push(node.nodeValue);
+                        node = null;
+                    }
+                }
+                return arr;
+            }
+        },
+        setInnerText:function(dom,str){
+            if('innerText' in dom){
+                dom.innerText = str;
+            }else{
+                dom.innerHTML = '';
+                dom.appendChild(document.createTextNode(str));
+            }
         }
 
     })
@@ -250,6 +321,24 @@
                 this.className = JQ.trim(''+this.className+"").replace(""+cName+"",'');
             })
 
+        },
+        attr:function(attName,attVal){
+            if(arguments.length==1){
+                return this[0][attName];
+            }else{
+                return this.each(function(){
+                    this[attName] = attVal;
+                })
+            }
+        },
+        val:function(val){
+            if(val!== 'undefined'){
+                return this[0].value;
+            }else{
+                return this.each(function(){
+                    this.value = val;
+                })
+            }
         }
     })
 
@@ -261,6 +350,18 @@
                    callback(JQ);
                 },false);
             return this;
+        },
+        addDom:function (node, callback) {
+            if(typeof node == "string"){
+                node = this.creatDom(node)[0];
+            }else if(node.length ==1){
+                node = node[0];
+            }
+            if(typeof node == 'object'&&!node.length){
+                JQ.each(this,function(){
+                    callback.call(this,node);
+                })
+            }
         }
     })
 
