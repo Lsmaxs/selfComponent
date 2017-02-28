@@ -102,13 +102,13 @@
 
     // 扩展工具方法
     JQ.extend({
-        each:function(func){
-            var length = this.length;
+        each:function(obj,func){
+            var length = obj.length;
             for(var i = 0;i<length;i++){
                 //将each的回调环境指向到具体的节点内，this即节点
-                func.call(this[i],this[i],i);
+                func.call(obj[i],i,obj[i]);
             }
-            return this;
+            return obj;
         },
         trim:function(str){
             if(!str) return "";
