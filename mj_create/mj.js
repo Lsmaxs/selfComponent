@@ -199,6 +199,9 @@
         },
         slice:function(){
             return JQ(arrFn.slice.apply(this,arguments))
+        },
+        eq: function(i){
+            return this.slice(i, i+1)
         }
     })
 
