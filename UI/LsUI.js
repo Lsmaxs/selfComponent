@@ -232,6 +232,7 @@
 !function (window) {
     window.document.addEventListener('touchstart', function (event) {
         /* Do Nothing */
+
     }, false);
 }(window);
 
@@ -260,7 +261,7 @@
             options = _this.options;
 
         if (typeof LsUI_CITYS == 'undefined') {
-            console.error('请在LsUI.js前引入LsUI.citys.js。下载地址：http://cityselect.LsUI.org');
+            console.error('请在LsUI.js前引入LsUI.citys.js');
             return;
         }
 
